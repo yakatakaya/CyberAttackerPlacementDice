@@ -1,0 +1,29 @@
+{
+  "name": "cyberattackerplacementdice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack-dev-server --port 8080"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babylonjs/core": "^6.23.0",
+    "@babylonjs/inspector": "^6.23.0",
+    "html-webpack-plugin": "^5.5.3",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.2.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "dependencies": {
+    "@babylonjs/havok": "^1.2.1",
+    "ammo.js": "github:kripken/ammo.js",
+    "ammojs3": "^0.0.8",
+    "cannon": "^0.6.2",
+    "cannon-es": "^0.20.0"
+  }
+}
