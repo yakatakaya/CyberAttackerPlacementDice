@@ -65,13 +65,14 @@ class App {
             // Mesh shape
             meshes.forEach((mesh)=>{
                 mesh.parent = root;
-                let phy = new PhysicsShapeMesh(mesh as Mesh, scene);
-                boxClone2Shape.addChildFromParent(root, phy, mesh);
+                let shapeMesh = new PhysicsShapeMesh(mesh as Mesh, scene);
+                shapeMesh.material = {friction: 0.2, restitution: 0};
+                boxClone2Shape.addChildFromParent(root, shapeMesh, mesh);
                 mesh.actionManager = new ActionManager(scene);
                 // マウスクリックイベント
                 // クリックすると重力（Y）方向には一定の力を加えXZ方向にはランダムに弱めの力を加える
                 mesh.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickUpTrigger, function () {
-                    applyForce(body, root, new Vector3(App.getRandomInt(100), 1000, App.getRandomInt(100)));
+                    applyForce(body, root, new Vector3(App.getRandomInt(200)-100, 1000, App.getRandomInt(200)-100));
                 }));
             });
 
