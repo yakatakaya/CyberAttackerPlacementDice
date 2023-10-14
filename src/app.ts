@@ -44,18 +44,15 @@ class App {
         
         SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_4SidedDice.glb", scene)
         .then((result) => {
-        // Clean up hierarchy
-        const root = new TransformNode("root");
-        const boxClone2Shape = new PhysicsShapeContainer(scene);
-            var m = result.meshes[0];
-            root.position.set(0, 5, 0);
+            let root = new TransformNode("root");
+            let boxClone2Shape = new PhysicsShapeContainer(scene);
+            root.position.set(3, 3, 0);
     
-            m.normalizeToUnitCube();
 
             // Mesh shape
             result.meshes.forEach((mesh)=>{
                 mesh.parent = root;
-                const phy = new PhysicsShapeMesh(mesh as Mesh, scene);
+                let phy = new PhysicsShapeMesh(mesh as Mesh, scene);
                 boxClone2Shape.addChildFromParent(root, phy, mesh);
             });
 
@@ -65,19 +62,51 @@ class App {
             body.setMassProperties ({
                 mass: 1,
             });
-            console.log(result.meshes);
                     
         });
         SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_4SidedDice.glb", scene)
         .then((result) => {
-            result.meshes[0].position.x = -3;
-            result.meshes[0].position.y = 3;
+            let root = new TransformNode("root");
+            let boxClone2Shape = new PhysicsShapeContainer(scene);
+            root.position.set(-3, 3, 0);
+    
+
+            // Mesh shape
+            result.meshes.forEach((mesh)=>{
+                mesh.parent = root;
+                let phy = new PhysicsShapeMesh(mesh as Mesh, scene);
+                boxClone2Shape.addChildFromParent(root, phy, mesh);
+            });
+
+            var body = new PhysicsBody(root, PhysicsMotionType.DYNAMIC, false, scene);
+
+            body.shape = boxClone2Shape;
+            body.setMassProperties ({
+                mass: 1,
+            });
 
         });
         SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_6SidedDice.glb", scene)
         .then((result) => {
-            result.meshes[0].position.x = 0;
-            result.meshes[0].position.y = 3;
+            let root = new TransformNode("root");
+            let boxClone2Shape = new PhysicsShapeContainer(scene);
+            root.position.set(0, 3, 0);
+    
+
+            // Mesh shape
+            result.meshes.forEach((mesh)=>{
+                mesh.parent = root;
+                let phy = new PhysicsShapeMesh(mesh as Mesh, scene);
+                boxClone2Shape.addChildFromParent(root, phy, mesh);
+            });
+
+            var body = new PhysicsBody(root, PhysicsMotionType.DYNAMIC, false, scene);
+
+            body.shape = boxClone2Shape;
+            body.setMassProperties ({
+                mass: 1,
+            });
+
         });
         //var sphere = MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
         //sphere.position.y = 4;
