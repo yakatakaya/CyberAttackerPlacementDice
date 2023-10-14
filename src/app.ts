@@ -43,14 +43,16 @@ class App {
         new PhysicsAggregate(ground, PhysicsShapeType.BOX, {mass: 0, friction: 0.7, restitution: 0.8}, scene);
         var light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
         
-        SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_4SidedDice.glb", scene)
-        .then((result) => {
+        // create dices
+        var createDice = function(meshes: Mesh[], scale : number, initialPosition : Vector3){
             let root = new TransformNode("root");
             let boxClone2Shape = new PhysicsShapeContainer(scene);
-            root.position.set(3, 3, 0);
+            root.position = initialPosition;
             var body = new PhysicsBody(root, PhysicsMotionType.DYNAMIC, false, scene);
+            root.scaling.scaleInPlace(scale);
             
             var applyForce = function (physicsBody : PhysicsBody, obj : TransformNode, vector :Vector3) {
+                // 物体の中心から少しずらした点に力を加えることで立方体など安定した物体にもいい感じのモーメントを与える
                 var point = obj.absolutePosition;
                 point.y -= 1;
 
@@ -61,11 +63,13 @@ class App {
             }
 
             // Mesh shape
-            result.meshes.forEach((mesh)=>{
+            meshes.forEach((mesh)=>{
                 mesh.parent = root;
                 let phy = new PhysicsShapeMesh(mesh as Mesh, scene);
                 boxClone2Shape.addChildFromParent(root, phy, mesh);
                 mesh.actionManager = new ActionManager(scene);
+                // マウスクリックイベント
+                // クリックすると重力（Y）方向には一定の力を加えXZ方向にはランダムに弱めの力を加える
                 mesh.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickUpTrigger, function () {
                     applyForce(body, root, new Vector3(App.getRandomInt(100), 1000, App.getRandomInt(100)));
                 }));
@@ -76,91 +80,23 @@ class App {
             body.setMassProperties ({
                 mass: 2,
             });
-                    
+        }
+        // 4面ダイス一つ目
+        SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_4SidedDice.glb", scene)
+        .then((result) =>{
+            createDice(result.meshes as Mesh[], 1, new Vector3(3, 3, 0));
         });
+        // 4面ダイス二つ目
         SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_4SidedDice.glb", scene)
         .then((result) => {
-            let root = new TransformNode("root");
-            let boxClone2Shape = new PhysicsShapeContainer(scene);
-            root.position.set(-3, 3, 0);
-            var body = new PhysicsBody(root, PhysicsMotionType.DYNAMIC, false, scene);
-
-            var applyForce = function (physicsBody : PhysicsBody, obj : TransformNode, vector :Vector3) {
-                var point = obj.absolutePosition;
-                point.y -= 1;
-
-                physicsBody.applyForce(
-                    vector,
-                    point
-                );
-            }
-
-            // Mesh shape
-            result.meshes.forEach((mesh)=>{
-                mesh.parent = root;
-                let phy = new PhysicsShapeMesh(mesh as Mesh, scene);
-                boxClone2Shape.addChildFromParent(root, phy, mesh);
-                mesh.actionManager = new ActionManager(scene);
-                mesh.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickUpTrigger, function () {
-                    applyForce(body, root, new Vector3(App.getRandomInt(100), 1000, App.getRandomInt(100)));
-                }));
-            });
-
-            body.shape = boxClone2Shape;
-            body.setMassProperties ({
-                mass: 2,
-            });
-
+            createDice(result.meshes as Mesh[], 1, new Vector3(-3, 3, 0));
         });
+        // 6面ダイス
         SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_6SidedDice.glb", scene)
         .then((result) => {
-            let root = new TransformNode("root");
-            let boxClone2Shape = new PhysicsShapeContainer(scene);
-            root.position.set(0, 3, 0);
-            root.scaling.scaleInPlace(0.5);
-
-            var body = new PhysicsBody(root, PhysicsMotionType.DYNAMIC, false, scene);
-
-            var applyForce = function (physicsBody : PhysicsBody, obj : TransformNode, vector :Vector3) {
-                var point = obj.absolutePosition;
-                point.y -= 1;
-
-                physicsBody.applyForce(
-                    vector,
-                    point
-                );
-            }
-
-            // Mesh shape
-            result.meshes.forEach((mesh)=>{
-                mesh.parent = root;
-                let phy = new PhysicsShapeMesh(mesh as Mesh, scene);
-                boxClone2Shape.addChildFromParent(root, phy, mesh);
-                mesh.actionManager = new ActionManager(scene);
-                mesh.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickUpTrigger, function () {
-                    applyForce(body, root, new Vector3(App.getRandomInt(100), 1000, App.getRandomInt(100)));
-                }));
-            });
-            body.shape = boxClone2Shape;
-            body.setMassProperties ({
-                mass: 2,
-            });
-
+            createDice(result.meshes as Mesh[], 0.5, new Vector3(0, 3, 0));
         });
-        //var sphere = MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
-        //sphere.position.y = 4;
-        //var sphereAggregate = new PhysicsAggregate(sphere, PhysicsShapeType.SPHERE, { mass: 1, restitution:0.75}, scene);
-        // hide/show the Inspector
-        window.addEventListener("keydown", (ev) => {
-            // Shift+Ctrl+Alt+I
-            if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.key === 'i') {
-                if (scene.debugLayer.isVisible()) {
-                    scene.debugLayer.hide();
-                } else {
-                    scene.debugLayer.show();
-                }
-            }
-        });
+
         // run the main render loop
         engine.runRenderLoop(() => {
             scene.render();
