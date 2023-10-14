@@ -4,8 +4,8 @@ import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/loaders/OBJ";
 
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, GroundMesh,PhysicsAggregate,PhysicsShapeType,HavokPlugin } from "@babylonjs/core";
-import { PhysicsImpostor, PhysicsShapeContainer } from '@babylonjs/core/Physics';
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, GroundMesh,PhysicsAggregate,PhysicsShapeType,HavokPlugin, TransformNode } from "@babylonjs/core";
+import { PhysicsImpostor, PhysicsShapeContainer, PhysicsShapeMesh,PhysicsBody, PhysicsMotionType } from '@babylonjs/core/Physics';
 
 import HavokPhysics, { HavokPhysicsWithBindings } from "@babylonjs/havok";
 
@@ -41,38 +41,32 @@ class App {
         new PhysicsAggregate(ground, PhysicsShapeType.BOX, {mass: 0, friction: 0.7, restitution: 0.8}, scene);
 
         var light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
+        
         SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_4SidedDice.glb", scene)
         .then((result) => {
-            var root = new Mesh("dice1", scene);
+        // Clean up hierarchy
+        const root = new TransformNode("root");
+        const boxClone2Shape = new PhysicsShapeContainer(scene);
+            var m = result.meshes[0];
+            root.position.set(0, 5, 0);
+    
+            m.normalizeToUnitCube();
 
-            result.meshes.forEach((m, i)=>{
-                if(m.name.indexOf("box") != -1){
-                    m.isVisible = false
-                    root.addChild(m)
-                }
-            })
-        
-            // Add all root nodes within the loaded gltf to the physics root
-            result.meshes.forEach((m, i)=>{
-                if(m.parent == null){
-                    root.addChild(m)
-                }
-            })
-        
-            // Make every collider into a physics impostor
-            root.getChildMeshes().forEach((m)=>{
-                if(m.name.indexOf("box") != -1){
-                    m.position.x = -3;
-                    m.position.y = 30;
-        
-                    new PhysicsAggregate(m, PhysicsShapeType.BOX, { mass: 0.1 }, scene);
-                }
-            })
-            
-            // Scale the root object and turn it into a physics impsotor
-            root.position.y = 10;
-            new PhysicsAggregate(root, new PhysicsShapeContainer(scene), { mass: 3 }, scene);
-            
+            // Mesh shape
+            result.meshes.forEach((mesh)=>{
+                mesh.parent = root;
+                const phy = new PhysicsShapeMesh(mesh as Mesh, scene);
+                boxClone2Shape.addChildFromParent(root, phy, mesh);
+            });
+
+            var body = new PhysicsBody(root, PhysicsMotionType.DYNAMIC, false, scene);
+
+            body.shape = boxClone2Shape;
+            body.setMassProperties ({
+                mass: 1,
+            });
+            console.log(result.meshes);
+                    
         });
         SceneLoader.ImportMeshAsync("", "./models/", "CyberAttackerPlacement_4SidedDice.glb", scene)
         .then((result) => {
